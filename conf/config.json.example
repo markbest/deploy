@@ -1,0 +1,18 @@
+{
+  "servers":[
+    {
+      "host":"127.0.0.1",
+      "port":22,
+      "user":"root",
+      "password":"password",
+      "preCommands":"",
+      "uploads":[
+        {
+          "local":"/data/wwwroot/code/",
+          "remote":"/home/wwwroot/deploy/"
+        }
+      ],
+      "postCommands":""
+    }
+  ]
+}
