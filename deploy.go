@@ -6,6 +6,7 @@ import (
 	. "github.com/markbest/deploy/utils"
 	"os"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 )
@@ -42,7 +43,7 @@ func handle(path Uploads, server Server, wg *sync.WaitGroup) {
 	timestamp := time.Now().Format("20060102030405")
 	zipFile := timestamp + ".zip"
 	zipPath := "./tmp/" + zipFile
-	Zip(path.Local, zipPath)
+	Zip(path.Local, zipPath, strings.Split(server.IgnoreDirs, ","))
 
 	//Create ssh client
 	ssh, err := NewSShClient(server.Host, server.Port, server.User, server.Password)

@@ -15,16 +15,20 @@ type File struct {
 }
 
 //Get file list
-func getFileList(path string) (files []string, err error) {
+func getFileList(localPath string, ignoreDirs []string) (files []string, err error) {
 	PthSep := string(os.PathSeparator)
-	err = filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
+	err = filepath.Walk(localPath, func(path string, f os.FileInfo, err error) error {
 		if f == nil {
 			return err
 		}
-		if f.IsDir() {
-			files = append(files, path+PthSep)
-		} else {
-			files = append(files, path)
+
+		flag := judgeIgnore(localPath, path, ignoreDirs)
+		if !flag {
+			if f.IsDir() {
+				files = append(files, path+PthSep)
+			} else {
+				files = append(files, path)
+			}
 		}
 		return nil
 	})
@@ -34,12 +38,26 @@ func getFileList(path string) (files []string, err error) {
 	return files, err
 }
 
+//Judge file is ignore or not
+func judgeIgnore(path string, file string, ignoreDirs []string) bool {
+	flag := false
+	if len(ignoreDirs) > 0 {
+		for _, d := range ignoreDirs {
+			if strings.HasPrefix(file, path+d) {
+				flag = true
+				break
+			}
+		}
+	}
+	return flag
+}
+
 //Zip compress
-func Zip(path string, name string) {
+func Zip(localPath string, zipPath string, ignoreDirs []string) {
 	buf := new(bytes.Buffer)
 	w := zip.NewWriter(buf)
 	zipFiles := make([]File, 0)
-	files, err := getFileList(path)
+	files, err := getFileList(localPath, ignoreDirs)
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +67,7 @@ func Zip(path string, name string) {
 	}
 
 	for _, file := range zipFiles {
-		f, err := w.Create(strings.Replace(file.Name, path, "", 1))
+		f, err := w.Create(strings.Replace(file.Name, localPath, "", 1))
 		if err != nil {
 			panic(err)
 		}
@@ -64,7 +82,7 @@ func Zip(path string, name string) {
 		panic(err)
 	}
 
-	f, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, 0666)
+	f, err := os.OpenFile(zipPath, os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		panic(err)
 	}

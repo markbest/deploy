@@ -21,6 +21,7 @@ type Server struct {
 	Password     string    `json:"password"`
 	PreCommands  string    `json:"preCommands"`
 	Uploads      []Uploads `json:"uploads"`
+	IgnoreDirs   string    `json:"ignoreDirs"`
 	PostCommands string    `json:"postCommands"`
 }
 

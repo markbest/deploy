@@ -5,14 +5,15 @@
       "port":22,
       "user":"root",
       "password":"password",
-      "preCommands":"",
+      "preCommands":"ls -l",
       "uploads":[
         {
-          "local":"/data/wwwroot/code/",
-          "remote":"/home/wwwroot/deploy/"
+          "local":"E:\\GOROOT\\",
+          "remote":"/home/golang"
         }
       ],
-      "postCommands":""
+      "ignoreDirs":".git,.idea",
+      "postCommands":"ls -l"
     }
   ]
 }
