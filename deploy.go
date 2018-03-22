@@ -4,7 +4,7 @@ import (
 	"bytes"
 	. "github.com/markbest/deploy/conf"
 	. "github.com/markbest/deploy/utils"
-	"os"
+	"log"
 	"runtime"
 	"strings"
 	"sync"
@@ -52,34 +52,23 @@ func handle(path Uploads, server Server, wg *sync.WaitGroup) {
 	}
 
 	//Upload file
-	srcFile, err := os.Open(zipPath)
+	log.Printf("开始上传文件至服务器:%s", server.Host)
+	chunkFiles, err := ChunkFileUpload(zipPath, path.Remote+timestamp, ssh)
 	if err != nil {
 		panic(err)
 	}
-
-	dstFile, err := ssh.Sftp.Create(path.Remote + zipFile)
-	if err != nil {
-		panic(err)
-	}
-
-	buf := make([]byte, 1024)
-	for {
-		n, _ := srcFile.Read(buf)
-		if n == 0 {
-			break
-		}
-		dstFile.Write(buf)
-	}
+	mergeFileCommand := GetMergeFileCommand(chunkFiles, path.Remote+zipFile)
+	removeFileCommand := GetDeleteChunkFileCommand(chunkFiles, path.Remote+zipFile)
 
 	//Run commands
+	log.Printf("上传完毕开始解压文件")
 	commands := make([]string, 0)
+	commands = append(commands, mergeFileCommand)
 	commands = append(commands, "/usr/bin/mkdir -p "+path.Remote+timestamp)
 	commands = append(commands, "/usr/bin/unzip "+path.Remote+zipFile+" -d "+path.Remote+timestamp)
-	err = ssh.Commands(commands, outPut)
-	if err != nil {
-		panic(err)
-	}
-
+	ssh.Commands(commands, outPut)
+	ssh.Commands(removeFileCommand, outPut)
+	log.Printf("代码发布成功")
 	defer wg.Done()
 	defer ssh.Close()
 }

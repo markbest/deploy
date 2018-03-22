@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"log"
 )
 
 type File struct {
@@ -54,6 +55,7 @@ func judgeIgnore(path string, file string, ignoreDirs []string) bool {
 
 //Zip compress
 func Zip(localPath string, zipPath string, ignoreDirs []string) {
+	log.Printf("开始打包目录:%s",localPath)
 	buf := new(bytes.Buffer)
 	w := zip.NewWriter(buf)
 	zipFiles := make([]File, 0)
