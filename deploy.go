@@ -7,13 +7,7 @@ import (
 	"log"
 	"runtime"
 	"strings"
-	"sync"
 	"time"
-)
-
-var (
-	outPut bytes.Buffer
-	wg     = &sync.WaitGroup{}
 )
 
 func main() {
@@ -29,16 +23,14 @@ func main() {
 		for _, server := range Conf.Servers {
 			if len(server.Uploads) > 0 {
 				for _, path := range server.Uploads {
-					wg.Add(1)
-					go handle(path, server, wg)
+					handleUpload(path, server)
 				}
 			}
 		}
 	}
-	wg.Wait()
 }
 
-func handle(path Uploads, server Server, wg *sync.WaitGroup) {
+func handleUpload(path Uploads, server Server) {
 	//Create zip file
 	timestamp := time.Now().Format("20060102030405")
 	zipFile := timestamp + ".zip"
@@ -62,6 +54,7 @@ func handle(path Uploads, server Server, wg *sync.WaitGroup) {
 
 	//Run commands
 	log.Printf("上传完毕开始解压文件")
+	var outPut bytes.Buffer
 	commands := make([]string, 0)
 	commands = append(commands, mergeFileCommand)
 	commands = append(commands, "/usr/bin/mkdir -p "+path.Remote+timestamp)
@@ -69,6 +62,5 @@ func handle(path Uploads, server Server, wg *sync.WaitGroup) {
 	ssh.Commands(commands, outPut)
 	ssh.Commands(removeFileCommand, outPut)
 	log.Printf("代码发布成功")
-	defer wg.Done()
 	defer ssh.Close()
 }
