@@ -42,6 +42,12 @@ func handleUpload(path Uploads, server Server) {
 	if err != nil {
 		panic(err)
 	}
+	
+	//Run pre commands
+	if server.PreCommands != "" {
+		preCommands := strings.Split(server.PreCommands, ",")
+		ssh.Commands(preCommands, outPut)
+	}
 
 	//Upload file
 	log.Printf("开始上传文件至服务器:%s", server.Host)
@@ -52,7 +58,7 @@ func handleUpload(path Uploads, server Server) {
 	mergeFileCommand := GetMergeFileCommand(chunkFiles, path.Remote+zipFile)
 	removeFileCommand := GetDeleteChunkFileCommand(chunkFiles, path.Remote+zipFile)
 
-	//Run commands
+	//Unzip file
 	log.Printf("上传完毕开始解压文件")
 	var outPut bytes.Buffer
 	commands := make([]string, 0)
@@ -61,6 +67,13 @@ func handleUpload(path Uploads, server Server) {
 	commands = append(commands, "/usr/bin/unzip "+path.Remote+zipFile+" -d "+path.Remote+timestamp)
 	ssh.Commands(commands, outPut)
 	ssh.Commands(removeFileCommand, outPut)
+	
+	//Run post commands
+	if server.PreCommands != "" {
+		postCommands := strings.Split(server.PreCommands, ",")
+		ssh.Commands(postCommands, outPut)
+	}
+	
 	log.Printf("代码发布成功")
 	defer ssh.Close()
 }
