@@ -31,6 +31,8 @@ func main() {
 }
 
 func handleUpload(path Uploads, server Server) {
+	var outPut bytes.Buffer
+	
 	//Create zip file
 	timestamp := time.Now().Format("20060102030405")
 	zipFile := timestamp + ".zip"
@@ -60,7 +62,6 @@ func handleUpload(path Uploads, server Server) {
 
 	//Unzip file
 	log.Printf("上传完毕开始解压文件")
-	var outPut bytes.Buffer
 	commands := make([]string, 0)
 	commands = append(commands, mergeFileCommand)
 	commands = append(commands, "/usr/bin/mkdir -p "+path.Remote+timestamp)
