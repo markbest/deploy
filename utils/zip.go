@@ -4,10 +4,11 @@ import (
 	"archive/zip"
 	"bytes"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
-	"log"
+	"time"
 )
 
 type File struct {
@@ -15,7 +16,7 @@ type File struct {
 	Body string
 }
 
-//Get file list
+// Get file list
 func getFileList(localPath string, ignoreDirs []string) (files []string, err error) {
 	PthSep := string(os.PathSeparator)
 	err = filepath.Walk(localPath, func(path string, f os.FileInfo, err error) error {
@@ -39,7 +40,7 @@ func getFileList(localPath string, ignoreDirs []string) (files []string, err err
 	return files, err
 }
 
-//Judge file is ignore or not
+// Judge file is ignore or not
 func judgeIgnore(path string, file string, ignoreDirs []string) bool {
 	flag := false
 	if len(ignoreDirs) > 0 {
@@ -53,9 +54,9 @@ func judgeIgnore(path string, file string, ignoreDirs []string) bool {
 	return flag
 }
 
-//Zip compress
+// Zip compress
 func Zip(localPath string, zipPath string, ignoreDirs []string) {
-	log.Printf("开始打包目录:%s",localPath)
+	log.Printf("开始打包目录:%s", localPath)
 	buf := new(bytes.Buffer)
 	w := zip.NewWriter(buf)
 	zipFiles := make([]File, 0)
@@ -69,7 +70,12 @@ func Zip(localPath string, zipPath string, ignoreDirs []string) {
 	}
 
 	for _, file := range zipFiles {
-		f, err := w.Create(strings.Replace(file.Name, localPath, "", 1))
+		f, err := w.CreateHeader(
+			&zip.FileHeader{
+				Name:     strings.Replace(file.Name, localPath, "", 1),
+				Modified: time.Now(),
+			},
+		)
 		if err != nil {
 			panic(err)
 		}

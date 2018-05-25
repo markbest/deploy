@@ -13,7 +13,7 @@ type SSHClient struct {
 	Sftp   *sftp.Client
 }
 
-//New ssh client connect
+// New ssh client connect
 func NewSShClient(ip string, port int64, user string, password string) (sc *SSHClient, err error) {
 	config := &ssh.ClientConfig{
 		User: user,
@@ -38,7 +38,7 @@ func NewSShClient(ip string, port int64, user string, password string) (sc *SSHC
 	return sc, nil
 }
 
-//Run commands
+// Run commands
 func (sc *SSHClient) Commands(commands []string, output bytes.Buffer) error {
 	if len(commands) > 0 {
 		for _, command := range commands {
@@ -57,7 +57,7 @@ func (sc *SSHClient) Commands(commands []string, output bytes.Buffer) error {
 	return nil
 }
 
-//Close ssh connect
+// Close ssh connect
 func (sc *SSHClient) Close() {
 	sc.Sftp.Close()
 }

@@ -12,12 +12,13 @@ var wg = &sync.WaitGroup{}
 
 const chunkSize int64 = 2 << 20
 
-//division zip file and upload
+// division zip file and upload
 func ChunkFileUpload(zipPath string, prefix string, ssh *SSHClient) (chunkFiles []string, err error) {
 	srcFile, err := os.Open(zipPath)
 	if err != nil {
 		return chunkFiles, err
 	}
+	defer srcFile.Close()
 
 	fileInfo, err := os.Stat(zipPath)
 	if err != nil {
@@ -40,11 +41,10 @@ func ChunkFileUpload(zipPath string, prefix string, ssh *SSHClient) (chunkFiles 
 		chunkFiles = append(chunkFiles, chunkFile)
 	}
 	wg.Wait()
-	srcFile.Close()
 	return chunkFiles, nil
 }
 
-//upload chunk
+// upload chunk
 func uploadChunk(ssh *SSHClient, chunkFile string, content []byte, wg *sync.WaitGroup) {
 	dstFile, _ := ssh.Sftp.Create(chunkFile)
 	dstFile.Write(content)
@@ -53,7 +53,7 @@ func uploadChunk(ssh *SSHClient, chunkFile string, content []byte, wg *sync.Wait
 	defer dstFile.Close()
 }
 
-//get merge chunk file command
+// get merge chunk file command
 func GetMergeFileCommand(chunkFiles []string, zipPath string) string {
 	mergeFileCommand := "cat "
 	if len(chunkFiles) > 0 {
@@ -65,7 +65,7 @@ func GetMergeFileCommand(chunkFiles []string, zipPath string) string {
 	return mergeFileCommand
 }
 
-//get delete chunk file command
+// get delete chunk file command
 func GetDeleteChunkFileCommand(chunkFiles []string, zipPath string) []string {
 	removeFileCommand := make([]string, 0)
 	if len(chunkFiles) > 0 {
