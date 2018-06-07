@@ -46,12 +46,13 @@ func (sc *SSHClient) Commands(commands []string, output bytes.Buffer) error {
 			if err != nil {
 				return err
 			}
-			defer session.Close()
 			session.Stdout = &output
 			err = session.Run(command)
 			if err != nil {
+				session.Close()
 				return err
 			}
+			session.Close()
 		}
 	}
 	return nil
