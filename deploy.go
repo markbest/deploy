@@ -2,12 +2,13 @@ package main
 
 import (
 	"bytes"
-	. "github.com/markbest/deploy/conf"
-	. "github.com/markbest/deploy/utils"
 	"log"
 	"runtime"
 	"strings"
 	"time"
+
+	. "github.com/markbest/deploy/conf"
+	. "github.com/markbest/deploy/utils"
 )
 
 func main() {
@@ -45,7 +46,7 @@ func handleUpload(path Uploads, server Server) {
 		panic(err)
 	}
 	defer ssh.Close()
-	
+
 	// Run pre commands
 	if server.PreCommands != "" {
 		preCommands := strings.Split(server.PreCommands, ",")
@@ -69,12 +70,12 @@ func handleUpload(path Uploads, server Server) {
 	commands = append(commands, "/usr/bin/unzip "+path.Remote+zipFile+" -d "+path.Remote+timestamp)
 	ssh.Commands(commands, outPut)
 	ssh.Commands(removeFileCommand, outPut)
-	
+
 	// Run post commands
 	if server.PreCommands != "" {
 		postCommands := strings.Split(server.PreCommands, ",")
 		ssh.Commands(postCommands, outPut)
 	}
-	
+
 	log.Printf("代码发布成功")
 }

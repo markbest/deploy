@@ -2,10 +2,11 @@ package utils
 
 import (
 	"bytes"
-	"github.com/pkg/sftp"
-	"golang.org/x/crypto/ssh"
 	"net"
 	"strconv"
+
+	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
 )
 
 type SSHClient struct {

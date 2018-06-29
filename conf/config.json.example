@@ -8,7 +8,7 @@
       "preCommands":"ls -l",
       "uploads":[
         {
-          "local":"E:\\GOROOT\\",
+          "local":"/home/golang",
           "remote":"/home/golang"
         }
       ],
